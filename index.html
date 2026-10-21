@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase Plane Lab — Linear Autonomous Systems</title>
+<style>
+:root{color-scheme:light;--ink:#182533;--muted:#536273;--line:#d7e0e7;--blue:#2e6b92;--orange:#c46530;--back:#f5f7fa}
+*{box-sizing:border-box}body{margin:0;background:var(--back);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.43}
+.shell{max-width:1400px;margin:24px auto;padding:0 18px 36px}h1{font-size:clamp(1.4rem,2.4vw,1.85rem);margin:0 0 3px;letter-spacing:-.03em}.lead{color:var(--muted);margin:0 0 20px}
+.visual-layout{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:18px;margin:18px 0}.visual-layout.with-components{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}.initial-panel{margin-bottom:0}.top-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}.top-layout > .panel{min-width:0}.eigenpair-panel .settings-inputs > h2{margin-bottom:10px}.settings-bottom{max-width:760px;margin:0 auto}.settings-panel h2{margin-bottom:14px}.settings-other h3{margin:0 0 8px}.system-summary{border-top:1px solid var(--line);margin-top:18px;padding-top:6px}.system-summary .system:first-child{border-top:0;margin-top:0;padding-top:0}.portrait-panel{min-width:0}.panel{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 2px 7px #14253c08;padding:20px}
+h2{font-size:1.04rem;letter-spacing:-.01em;margin:0 0 11px}h3{font-size:.92rem;margin:0}.section-desc,.helper,.detail{color:var(--muted);font-size:.83rem}.section-desc{margin:-5px 0 13px}.helper{margin:8px 0 12px}
+.pair{border:1px solid var(--line);border-radius:9px;padding:13px;margin:10px 0 13px}.pair h3{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}.pair-status{color:var(--blue);font-size:.73rem;font-weight:500}.pair-fields{display:grid;grid-template-columns:minmax(100px,1fr) minmax(116px,1.4fr);gap:13px;align-items:start}.field-label{display:block;font-size:.77rem;color:var(--muted);margin-bottom:5px}
+input,select{border:1px solid #bfcbd7;border-radius:6px;background:#fff;color:var(--ink);padding:8px 9px;font:inherit}input{width:100%;min-width:0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:1rem}select{width:100%;font-size:.9rem}input:focus,select:focus,button:focus-visible{outline:2px solid #92c3e3;outline-offset:2px}input[readonly]{background:#f1f5f8;color:#617286;border-style:dashed}
+.vector-wrap{display:flex;align-items:stretch;justify-content:flex-start;gap:5px}.square-bracket{flex:0 0 11px;border-top:2px solid #33465a;border-bottom:2px solid #33465a;align-self:stretch}.square-bracket.left{border-left:2px solid #33465a}.square-bracket.right{border-right:2px solid #33465a}.vector-inputs{display:grid;grid-template-rows:1fr 1fr;gap:6px;width:100%;max-width:160px}.vector-inputs input{height:40px;text-align:center}
+.mode-selector{display:block;margin:2px 0 14px}.mode-selector .field-label{margin-bottom:6px}.mode-help{margin:4px 0 12px;padding:9px 11px;border-radius:7px;background:#f1f6fa;color:#38566e;font-size:.82rem}
+.system{border-top:1px solid var(--line);padding-top:15px;margin-top:15px}.mathbox{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;padding:7px 2px;min-height:46px;overflow-x:auto}.mathbox math{font-size:1.2rem}#matrixBox math{font-size:1.37rem}.solution-box{overflow-x:auto;min-height:50px;padding:6px 0}.solution-box math{font-size:1.08rem}#notice,.axis-notice{font-size:.84rem;line-height:1.45;border-radius:8px;padding:10px 12px;margin-top:12px;background:#edf5fa;color:#274c68}#notice.error,.axis-notice.error{background:#fff2ed;color:#8b3e26}#notice.neutral{background:#f1f4f7;color:#46566a}
+.plot-subtitle{font-size:.83rem;color:var(--muted);margin:0 0 11px}.plot-wrap{max-width:670px;width:100%;aspect-ratio:1/1;margin:0 auto;position:relative}canvas{display:block;width:100%;height:100%;cursor:crosshair;border-radius:5px;touch-action:manipulation}.invalid-plot{position:absolute;inset:27%;display:none;align-items:center;justify-content:center;text-align:center;background:#fffffff0;border:1px solid var(--line);border-radius:9px;color:#7b4639;padding:15px}
+.legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin:10px 0}.swatch{display:inline-block;width:18px;height:3px;vertical-align:middle;position:relative;top:-2px;margin-right:5px;border-radius:2px}.swatch.arrow{background:var(--blue)}.swatch.path{background:var(--orange)}.swatch.eigen{background:#8374bd}
+.portrait-panel .play-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:15px 0 0}.settings-other .play-settings{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:12px}.final-time-control{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.82rem}.final-time-control input{width:95px;font-size:.93rem;padding:5px 8px}.final-time-notice{font-size:.8rem;color:#8b3e26;margin:6px 0 0}.final-time-notice[hidden]{display:none}.play-controls button{cursor:pointer;border:1px solid #b4c4d2;background:#fff;border-radius:7px;padding:8px 16px;color:var(--ink);font-weight:650;font:inherit}.play-controls button.primary{background:var(--blue);border-color:var(--blue);color:#fff}.play-controls button:disabled{opacity:.45;cursor:not-allowed}.speed-control{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);white-space:nowrap}.speed-control input{width:112px;padding:0;accent-color:var(--blue);cursor:pointer}.speed-control output{min-width:3.3em;text-align:left;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600}.time-readout{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px;min-width:125px}.time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.91rem;white-space:nowrap;text-align:right}.current-state{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}.current-state[hidden]{display:none}.current-state math{font-size:1rem}
+.initial-panel .system-summary{border-top:0;border-bottom:1px solid var(--line);margin:0 0 17px;padding:0 0 14px}
+.initial-panel .general-solution{background:#f5f8fa;border:1px solid var(--line);border-radius:8px;padding:12px 13px;margin:10px 0 14px}.initial-panel .general-solution h3{margin:0 0 7px;font-size:.9rem}
+.initial-panel .initial-condition{margin-top:0}.initial-panel .particular-solution{margin-bottom:0}.initial-condition{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:11px 13px;min-height:50px;background:#f5f8fa;border:1px solid var(--line);border-radius:8px;font-size:.89rem;margin-top:12px}.initial-condition math{font-size:1.08rem}.initial-condition .hint{font-size:.8rem;color:var(--muted)}
+.initial-condition .vector-wrap{width:112px;flex-shrink:0}
+.initial-condition .vector-inputs{width:88px}
+.initial-condition .vector-inputs input{height:35px;font-size:.94rem;padding:5px 4px}
+.initial-condition .entry-notice{color:#8b3e26;font-size:.82rem;width:100%}
+.initial-condition .entry-notice[hidden]{display:none}
+.particular-solution{padding:12px 13px;margin-top:8px;background:#f5f8fa;border:1px solid var(--line);border-radius:8px}
+.particular-solution[hidden]{display:none}.particular-solution strong{font-size:.88rem}
+.particular-math{overflow-x:auto;overflow-y:hidden;padding:10px 0 2px}
+.particular-math math{font-size:1.12rem}
+.particular-solution .helper{margin:6px 0 0}
+.axis-panel{border-top:1px solid var(--line);margin-top:16px;padding-top:13px}.axis-panel h3{margin-bottom:8px}.axis-controls{max-width:175px}.axis-controls input{font-size:.95rem;padding:8px 9px}.axis-controls label{display:block;min-width:0}.axis-controls .field-label{font-size:.8rem}.axis-panel .helper{margin:7px 0 0}.axis-notice{display:none;margin-top:8px}.detail{margin-top:10px}
+
+/* Optional component-versus-time graphs. */
+.component-toggle{margin:15px 0 4px;display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--ink)}
+.component-toggle input{width:17px;height:17px;accent-color:var(--blue);cursor:pointer}
+.component-graphs{margin-top:0;min-width:0;background:#fff}
+.component-graphs[hidden]{display:none}
+.component-graphs h3{margin:0 0 4px}
+.component-graphs .helper{margin:0 0 12px}
+.component-graph{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 11px;margin-top:11px}
+.component-graph h4{margin:0 0 3px;font-size:.88rem;font-weight:600}
+.component-graph canvas{display:block;width:100%;height:245px;cursor:default;touch-action:auto}
+@media(max-width:850px){.visual-layout.with-components,.top-layout{grid-template-columns:minmax(0,1fr)}.plot-wrap{max-width:600px}.shell{margin-top:14px}.component-graph canvas{height:200px}}
+@media(max-width:420px){.panel{padding:14px}.pair{padding:10px}.pair-fields{gap:8px}}
+</style>
+</head>
+<body>
+<main class="shell">
+ <h1>Phase Plane Lab</h1>
+ <p class="lead">Build a linear autonomous system from its eigenvalues and eigenvectors, then explore its solutions.</p>
+ <div class="top-layout">
+ <section class="panel eigenpair-panel" aria-label="Eigenpair inputs">
+   <div class="settings-inputs">
+   <h2>Enter eigenpairs</h2>
+   <p class="section-desc">Enter real numbers or complex numbers such as <strong>1+2i</strong>, <strong>-3i</strong>, or <strong>i</strong>.</p>
+   <label class="mode-selector"><span class="field-label">Type of system</span><select id="mode"><option value="ordinary">Two independent eigenvectors</option><option value="defective">Repeated eigenvalue; one eigenvector</option></select></label>
+   <div class="pair" id="pair0">
+    <h3>Eigenpair 1 <span class="pair-status" id="status0"></span></h3>
+    <div class="pair-fields">
+     <label><span class="field-label">Eigenvalue λ₁</span><input id="l0" aria-label="Eigenvalue lambda 1" value="1" spellcheck="false"></label>
+     <div><span class="field-label" id="vlabel0">Eigenvector <math><msub><mover accent="true"><mi>v</mi><mo>→</mo></mover><mn>1</mn></msub></math></span><div class="vector-wrap"><span class="square-bracket left" aria-hidden="true"></span><div class="vector-inputs"><input id="v00" aria-label="First component of eigenvector 1" value="1" spellcheck="false"><input id="v01" aria-label="Second component of eigenvector 1" value="1" spellcheck="false"></div><span class="square-bracket right" aria-hidden="true"></span></div></div>
+    </div>
+   </div>
+   <div class="pair" id="pair1">
+    <h3><span id="secondHeading">Eigenpair 2</span> <span class="pair-status" id="status1"></span></h3>
+    <div class="pair-fields">
+     <label><span class="field-label" id="secondLambdaLabel">Eigenvalue λ₂</span><input id="l1" aria-label="Eigenvalue lambda 2" value="-1" spellcheck="false"></label>
+     <div><span class="field-label" id="vlabel1">Eigenvector <math><msub><mover accent="true"><mi>v</mi><mo>→</mo></mover><mn>2</mn></msub></math></span><div class="vector-wrap"><span class="square-bracket left" aria-hidden="true"></span><div class="vector-inputs"><input id="v10" aria-label="First component of eigenvector 2" value="1" spellcheck="false"><input id="v11" aria-label="Second component of eigenvector 2" value="-1" spellcheck="false"></div><span class="square-bracket right" aria-hidden="true"></span></div></div>
+    </div>
+   </div>
+   <p class="mode-help" id="modeHelp">For a real matrix, a nonreal eigenpair automatically determines its complex conjugate eigenpair.</p>
+   <div id="notice" class="neutral" role="status" aria-live="polite">Enter eigenpairs to determine the matrix.</div>
+   </div>
+ </section>
+ <section class="panel initial-panel" aria-label="Vector differential equation, initial condition and solutions">
+  <div class="system-summary">
+   <div class="system">
+    <h2>Corresponding vector differential equation</h2>
+    <div class="mathbox"><math display="block"><mover accent="true"><mi>x</mi><mo>→</mo></mover><mo>′</mo><mo>=</mo><mi mathvariant="bold-italic">A</mi><mover accent="true"><mi>x</mi><mo>→</mo></mover></math></div>
+    <div class="mathbox" id="matrixBox" aria-live="polite"></div>
+   </div>
+  </div>
+  <h2>Initial condition and solution</h2>
+  <div class="general-solution" aria-label="General solution">
+   <h3>General solution</h3>
+   <div class="solution-box" id="solutionBox" aria-live="polite"></div>
+  </div>
+   <div class="initial-condition" id="initialCondition">
+    <strong>Initial condition:</strong>
+    <math><mover accent="true"><mi>x</mi><mo>→</mo></mover><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo></math>
+    <div class="vector-wrap"><span class="square-bracket left" aria-hidden="true"></span><div class="vector-inputs"><input id="ic0" type="text" inputmode="decimal" aria-label="Initial x-coordinate" placeholder="x" spellcheck="false"><input id="ic1" type="text" inputmode="decimal" aria-label="Initial y-coordinate" placeholder="y" spellcheck="false"></div><span class="square-bracket right" aria-hidden="true"></span></div>
+    <span class="hint">Click the plot or enter both coordinates. Clicked points are rounded to tenths.</span>
+    <span class="entry-notice" id="initialConditionNotice" role="status" hidden></span>
+   </div>
+   <div class="particular-solution" id="particularSolution" aria-live="polite" hidden></div>
+
+ </section>
+ </div>
+ <div class="visual-layout" id="visualLayout">
+  <section class="panel portrait-panel" aria-label="Phase portrait">
+   <h2>Phase portrait</h2>
+   <p class="plot-subtitle">Click the phase plane or enter coordinates above to choose <strong><math><mover accent="true"><mi>x</mi><mo>→</mo></mover><mo>(</mo><mn>0</mn><mo>)</mo></math></strong> and animate its solution forward in time. Horizontal: x · Vertical: y</p>
+   <div class="plot-wrap"><canvas id="phaseCanvas" role="img" aria-label="Click the phase plane to choose an initial condition and animate its trajectory."></canvas><div class="invalid-plot" id="invalidPlot">Correct the eigenpairs to display the phase portrait.</div></div>
+   <div class="legend"><span><span class="swatch arrow"></span>Direction field</span><span><span class="swatch path"></span>Solution trajectory (arrow points forward)</span><span id="eigLegend"><span class="swatch eigen"></span>Real eigendirections</span></div>
+   <div class="play-controls"><button id="playBtn" class="primary" type="button" disabled>Play</button><button id="resetBtn" type="button" disabled>Reset to t = 0</button><div class="time-readout"><span class="time" id="timeLabel">t = 0.00</span><span class="current-state" id="currentState" hidden aria-label="Current solution value"><math><mover accent="true"><mi>x</mi><mo>→</mo></mover><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><mo stretchy="true">[</mo><mtable columnalign="center" rowspacing="0.12em"><mtr><mtd><mn id="currentX1">0</mn></mtd></mtr><mtr><mtd><mn id="currentX2">0</mn></mtd></mtr></mtable><mo stretchy="true">]</mo></math></span></div></div>
+   <div class="detail" id="portraitDetail">Arrows show the direction of increasing time.</div>
+  </section>
+   <section class="panel component-graphs" id="componentGraphs" aria-label="Solution components versus time" hidden>
+    <h3>Solution components versus time</h3>
+    <p class="helper">Both graphs run from t = 0 to T. Their vertical axes use the phase-plane limit ±L; values beyond it are clipped, not flattened. The moving dots follow the animation.</p>
+    <div class="component-graph"><h4>x(t)</h4><canvas id="componentCanvas1" role="img" aria-label="Graph of x versus time"></canvas></div>
+    <div class="component-graph"><h4>y(t)</h4><canvas id="componentCanvas2" role="img" aria-label="Graph of y versus time"></canvas></div>
+   </section>
+ </div>
+ <section class="panel settings-panel" aria-label="Settings and system definition">
+  <h2>Settings</h2>
+  <div class="settings-bottom">
+   <div class="settings-other">
+    <h3>Plot and animation</h3>
+   <div class="play-settings"><label class="speed-control" for="speedSlider"><span>Speed</span><input id="speedSlider" type="range" min="0.25" max="4" step="0.25" value="1" aria-label="Animation speed multiplier"><output id="speedValue" for="speedSlider">1×</output></label><label class="final-time-control" for="finalTime"><span>Final time T =</span><input id="finalTime" type="number" min="0.01" max="10000" step="any" value="100" aria-label="Final time for the animation"></label></div>
+   <div id="finalTimeNotice" class="final-time-notice" role="status" hidden></div>
+
+   <label class="component-toggle" for="showComponents"><input id="showComponents" type="checkbox">Show graphs of x(t) and y(t)</label>
+   <div class="axis-panel">
+    <h3>Axis bounds</h3>
+    <div class="axis-controls">
+     <label for="axisExtent"><span class="field-label">Axis limit (±)</span><input id="axisExtent" type="number" step="any" min="0.000005" value="5" aria-label="Positive limit for both axes"></label>
+    </div>
+    <p class="helper">Both axes run from −L to L, where L is the axis limit. The origin stays centered and the phase plane stays square.</p>
+    <div id="axisNotice" class="axis-notice error" role="status"></div>
+   </div>
+
+   </div>
+  </div>
+ </section>
+</main>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const inputs=[[ $('l0'),$('v00'),$('v01') ],[ $('l1'),$('v10'),$('v11') ]];
+const axisExtent=$('axisExtent'), speedSlider=$('speedSlider'), speedValue=$('speedValue'), finalTimeInput=$('finalTime'), canvas=$('phaseCanvas'), ctx=canvas.getContext('2d');
+const componentToggle=$('showComponents'), componentPanel=$('componentGraphs'), componentCanvases=[$('componentCanvas1'),$('componentCanvas2')];
+const EPS=1e-9;
+const z=(re,im=0)=>({re,im});
+const conj=a=>z(a.re,-a.im);
+const clean=n=>Math.abs(n)<1e-10?0:n;
+const fmtReal=n=>Number.isFinite(n)?String(Number(clean(n).toPrecision(6))):'?';
+function fmtComplex(a){const re=clean(a.re),im=clean(a.im);if(!im)return fmtReal(re);const m=Math.abs(Math.abs(im)-1)<1e-10?'':fmtReal(Math.abs(im));if(!re)return (im<0?'-':'')+m+'i';return fmtReal(re)+(im<0?'-':'+')+m+'i';}
+function parse(raw){
+ const s=raw.trim().replace(/\s+/g,'').replace(/−/g,'-').toLowerCase();
+ if(!s)throw Error('Complete all eigenvalue and vector entries.');
+ const n='(?:\\d+(?:\\.\\d*)?|\\.\\d+)',real=new RegExp('^[+-]?'+n+'$');
+ if(real.test(s)){const a=Number(s);if(!Number.isFinite(a))throw Error('Please enter finite numbers.');return z(a);}
+ if(!s.endsWith('i')||s.slice(0,-1).includes('i'))throw Error('Enter numbers such as 2, -1+3i, i, or -2i.');
+ const p=s.slice(0,-1);let split=-1;for(let i=1;i<p.length;i++)if(p[i]==='+'||p[i]==='-')split=i;
+ const rs=split<0?'0':p.slice(0,split),is=split<0?p:p.slice(split);
+ if(!real.test(rs)||!(is===''||is==='+'||is==='-'||real.test(is)))throw Error('Enter numbers such as 2, -1+3i, i, or -2i.');
+ const re=Number(rs),im=is===''||is==='+'?1:is==='-'?-1:Number(is);
+ if(!Number.isFinite(re)||!Number.isFinite(im))throw Error('Please enter finite numbers.');return z(re,im);
+}
+const readPair=i=>inputs[i].map(e=>parse(e.value));
+const hasImag=x=>Math.abs(x.im)>EPS;
+const hasImagVector=pair=>hasImag(pair[1])||hasImag(pair[2]);
+const vec=pair=>[pair[1].re,pair[2].re];
+const determinant=(u,v)=>u[0]*v[1]-u[1]*v[0];
+function invertBasis(u,v){
+ const det=determinant(u,v),scale=Math.hypot(...u)*Math.hypot(...v);
+ if(!scale||Math.abs(det)<=1e-8*scale)throw Error('The eigenvector and the other vector must be linearly independent.');
+ return [[v[1]/det,-v[0]/det],[-u[1]/det,u[0]/det]];
+}
+function similarity(u,v,B){
+ const inv=invertBasis(u,v),P=[[u[0],v[0]],[u[1],v[1]]];
+ const H=P.map(row=>[row[0]*B[0][0]+row[1]*B[1][0],row[0]*B[0][1]+row[1]*B[1][1]]);
+ return H.map(row=>[row[0]*inv[0][0]+row[1]*inv[1][0],row[0]*inv[0][1]+row[1]*inv[1][1]]);
+}
+const coeff=(u,v,s)=>{const I=invertBasis(u,v);return [I[0][0]*s[0]+I[0][1]*s[1],I[1][0]*s[0]+I[1][1]*s[1]];};
+let mode='ordinary',complexSource=null,previousSecond=null,drawing=null,selectedCondition=null;
+let bounds={xmin:-5,xmax:5,ymin:-5,ymax:5},plotGeometry=null;
+let elapsed=0,playing=false,frameId=null,lastFrame=null,trail=[],trailTime=0,animationSpeed=1,endTime=100;
+let componentCache=null;
+function setNotice(msg,type){$('notice').className=type;$('notice').textContent=msg;}
+function mkel(name,txt){const e=document.createElementNS('http://www.w3.org/1998/Math/MathML',name);if(txt!==undefined)e.textContent=txt;return e;}
+// Display an entry exactly as an integer or short terminating decimal whenever possible.
+// Never silently replace the matrix used to generate the phase portrait with a rounded matrix.
+function matrixEntry(r){
+ let factor=1n;
+ for(let places=0;places<=6;places++,factor*=10n){
+  if(factor%r.d===0n){
+   const scaled=r.n*(factor/r.d),negative=scaled<0n,abs=negative?-scaled:scaled;
+   if(places===0)return {text:scaled.toString(),approx:false};
+   const padded=abs.toString().padStart(places+1,'0'),cut=padded.length-places;
+   const txt=padded.slice(0,cut)+'.'+padded.slice(cut);
+   return {text:(negative?'-':'')+txt.replace(/\.?0+$/,'').replace(/\.$/,''),approx:false};
+  }
+ }
+ const v=Number(r.n)/Number(r.d);
+ return {text:Number.isFinite(v)?Number(v.toPrecision(8)).toString():'?',approx:true};
+}
+function setMatrix(A,exactA){
+ const entries=A.map((row,i)=>row.map((x,j)=>exactA?matrixEntry(exactA[i][j]):{text:fmtReal(x),approx:false}));
+ const approximate=entries.flat().some(v=>v.approx);
+ const m=mkel('math');m.setAttribute('display','block');
+ m.append(mkel('mi','A'),mkel('mo',approximate?'≈':'='),mkel('mo','['));m.firstChild.setAttribute('mathvariant','bold-italic');
+ const t=mkel('mtable');t.setAttribute('columnspacing','.85em');
+ entries.forEach(row=>{const r=mkel('mtr');row.forEach(v=>{const c=mkel('mtd');c.append(mkel('mn',v.text.replace(/^-/, '−')));r.append(c);});t.append(r);});
+ m.append(t,mkel('mo',']'));$('matrixBox').replaceChildren(m);
+}
+
+const arrowVar=(name,sub='')=>sub?`<msub><mover accent="true"><mi>${name}</mi><mo>→</mo></mover><mn>${sub}</mn></msub>`:`<mover accent="true"><mi>${name}</mi><mo>→</mo></mover>`;
+const arrowMath=(name,index='')=>`<math>${arrowVar(name,index)}</math>`;
+const sub=(name,num)=>`<msub><mi>${name}</mi><mn>${num}</mn></msub>`;
+const ePow=exponent=>`<msup><mi>e</mi><mrow>${exponent}</mrow></msup>`;
+function showGeneralSolution(kind){
+ const x=arrowVar('x'),v=arrowVar('v'),w=arrowVar('w'),v1=arrowVar('v','1'),v2=arrowVar('v','2');
+ const c1=sub('c','1'),c2=sub('c','2'),l1=sub('λ','1'),l2=sub('λ','2');
+ // e^(0t) = 1, so omit the entire exponential factor in all solution displays.
+ const isZeroEigen=i=>drawing.exactEigen[i].n===0n;
+ let expr;
+ if(kind==='defective')expr=`${x}<mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo>${isZeroEigen(0)?'':ePow('<mi>λ</mi><mi>t</mi>')}<mo>[</mo>${c1}${v}<mo>+</mo>${c2}<mo>(</mo><mi>t</mi>${v}<mo>+</mo>${w}<mo>)</mo><mo>]</mo>`;
+ else if(kind==='complex'){
+  const p=arrowVar('p'),q=arrowVar('q'),E=isZeroEigen(0)?'':ePow('<mi>a</mi><mi>t</mi>');
+  const term1=`${c1}${E}<mo>(</mo>${p}<mo>cos</mo><mo>(</mo><mi>b</mi><mi>t</mi><mo>)</mo><mo>−</mo>${q}<mo>sin</mo><mo>(</mo><mi>b</mi><mi>t</mi><mo>)</mo><mo>)</mo>`;
+  const term2=`${c2}${E}<mo>(</mo>${p}<mo>sin</mo><mo>(</mo><mi>b</mi><mi>t</mi><mo>)</mo><mo>+</mo>${q}<mo>cos</mo><mo>(</mo><mi>b</mi><mi>t</mi><mo>)</mo><mo>)</mo>`;
+  expr=`<mtable columnalign="left"><mtr><mtd>${x}<mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo>${term1}</mtd></mtr><mtr><mtd><mo>+</mo>${term2}</mtd></mtr></mtable>`;
+ }else expr=`${x}<mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo>${c1}${isZeroEigen(0)?'':ePow(l1+'<mi>t</mi>')}${v1}<mo>+</mo>${c2}${isZeroEigen(1)?'':ePow(l2+'<mi>t</mi>')}${v2}`;
+ // Only locally constructed MathML templates are inserted.
+ $('solutionBox').innerHTML=`<math display="block">${expr}</math>`;
+ if(kind==='complex')$('solutionBox').insertAdjacentHTML('beforeend',`<div class="helper" style="text-align:center;margin:5px 0 0">Here <math><msub><mi>λ</mi><mn>1</mn></msub><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mi>i</mi></math> and <math>${arrowVar('v','1')}<mo>=</mo>${arrowVar('p')}<mo>+</mo><mi>i</mi>${arrowVar('q')}</math>; the displayed solutions are real.</div>`);
+ if(kind==='defective')$('solutionBox').insertAdjacentHTML('beforeend',`<div class="helper" style="text-align:center;margin:5px 0 0">The generalized eigenvector satisfies <math><mo>(</mo><mi mathvariant="bold-italic">A</mi><mo>−</mo><mi>λ</mi><mi mathvariant="bold-italic">I</mi><mo>)</mo>${arrowVar('w')}<mo>=</mo>${arrowVar('v')}</math>.</div>`);
+}
+// Compute displayed coefficients using exact rational arithmetic. Decimal inputs
+// are finite rational numbers; floating-point values are for plotting only.
+function rational(n,d=1n){
+ if(d===0n)throw Error('Cannot divide by zero.');
+ if(d<0n){n=-n;d=-d;}
+ let a=n<0n?-n:n,b=d;
+ while(b!==0n){const r=a%b;a=b;b=r;}
+ const g=a||1n;
+ return {n:n/g,d:d/g};
+}
+function exactDecimal(raw){
+ let s=String(raw).trim().replace(/−/g,'-').replace(/^\+/,'');
+ if(!/^-?(?:\d+(?:\.\d*)?|\.\d+)$/.test(s))throw Error('Enter real decimal numbers.');
+ const neg=s.startsWith('-');if(neg)s=s.slice(1);
+ const [whole,dec='']=s.split('.');
+ return rational(BigInt((neg?'-':'')+(whole||'0')+dec),10n**BigInt(dec.length));
+}
+function exactComplex(raw){
+ const s=String(raw).trim().replace(/\s+/g,'').replace(/−/g,'-').toLowerCase();
+ if(!s.endsWith('i'))return [exactDecimal(s),rational(0n)];
+ const v=s.slice(0,-1);let split=-1;
+ for(let i=1;i<v.length;i++)if(v[i]==='+'||v[i]==='-')split=i;
+ const re=split<0?'0':v.slice(0,split),im=split<0?v:v.slice(split);
+ return [exactDecimal(re),exactDecimal(im===''||im==='+'?'1':im==='-'?'-1':im)];
+}
+const rAdd=(a,b)=>rational(a.n*b.d+b.n*a.d,a.d*b.d);
+const rSub=(a,b)=>rational(a.n*b.d-b.n*a.d,a.d*b.d);
+const rMul=(a,b)=>rational(a.n*b.n,a.d*b.d);
+const rDiv=(a,b)=>rational(a.n*b.d,a.d*b.n);
+const rAbs=a=>rational(a.n<0n?-a.n:a.n,a.d);
+function exactBasisFromInputs(source,kind){
+ if(kind==='complex'){
+  const v0=exactComplex(inputs[source][1].value),v1=exactComplex(inputs[source][2].value);
+  return [[v0[0],v1[0]],[v0[1],v1[1]]];
+ }
+ return [0,1].map(i=>[exactDecimal(inputs[i][1].value),exactDecimal(inputs[i][2].value)]);
+}
+// Exact similarity transform PBP^(-1) for the chosen eigenpair or Jordan chain.
+// These rational entries determine when matrix values can be displayed without rounding.
+function exactMatrixFromDrawing(d){
+ const [u,v]=d.exactBasis,zero=rational(0n),one=rational(1n),e=d.exactEigen;
+ const B=d.kind==='defective'?[[e[0],one],[zero,e[0]]]:
+         d.kind==='complex'?[[e[0],e[1]],[rational(-e[1].n,e[1].d),e[0]]]:
+         [[e[0],zero],[zero,e[1]]];
+ const P=[[u[0],v[0]],[u[1],v[1]]];
+ const det=rSub(rMul(P[0][0],P[1][1]),rMul(P[0][1],P[1][0]));
+ const Pinv=[[rDiv(P[1][1],det),rDiv(rational(-P[0][1].n,P[0][1].d),det)],
+             [rDiv(rational(-P[1][0].n,P[1][0].d),det),rDiv(P[0][0],det)]];
+ const multiply=(X,Y)=>[0,1].map(i=>[0,1].map(j=>rAdd(rMul(X[i][0],Y[0][j]),rMul(X[i][1],Y[1][j]))));
+ return multiply(multiply(P,B),Pinv);
+}
+function exactCoefficients(u,v,s){
+ const det=rSub(rMul(u[0],v[1]),rMul(u[1],v[0]));
+ return [rDiv(rSub(rMul(v[1],s[0]),rMul(v[0],s[1])),det),
+         rDiv(rSub(rMul(u[0],s[1]),rMul(u[1],s[0])),det)];
+}
+// Display exact terminating or repeating decimals rather than fraction bars.
+// Very long repeating periods are displayed as decimal approximations and explicitly marked.
+let decimalHasRepeats=false,decimalWasApproximated=false;
+function mathDecimal(r){
+ if(r.n<0n)return `<mrow><mo>−</mo>${mathDecimal(rAbs(r))}</mrow>`;
+ const whole=r.n/r.d;
+ let remainder=r.n%r.d;
+ if(remainder===0n)return `<mn>${whole}</mn>`;
+ const seen=new Map();
+ let digits='';
+ // A repeating bar over the full recurring block denotes the exact number.
+ while(remainder!==0n&&!seen.has(remainder)&&digits.length<48){
+  seen.set(remainder,digits.length);
+  remainder*=10n;
+  digits+=(remainder/r.d).toString();
+  remainder%=r.d;
+ }
+ if(remainder===0n)return `<mn>${whole}.${digits}</mn>`;
+ if(seen.has(remainder)){
+  decimalHasRepeats=true;
+  const start=seen.get(remainder),prefix=digits.slice(0,start),cycle=digits.slice(start);
+  return `<mrow><mn>${whole}.${prefix}</mn><mover accent="true"><mn>${cycle}</mn><mo>¯</mo></mover></mrow>`;
+ }
+ decimalWasApproximated=true;
+ const approx=Number(r.n)/Number(r.d);
+ if(!Number.isFinite(approx))return `<mn>${whole}.${digits}…</mn>`;
+ return `<mn>${Number(approx.toPrecision(15))}</mn>`;
+}
+function mathVector(v){
+ return `<mrow><mo stretchy="true">[</mo><mtable columnalign="center" rowspacing="0.12em">${v.map(x=>`<mtr><mtd>${mathDecimal(x)}</mtd></mtr>`).join('')}</mtable><mo stretchy="true">]</mo></mrow>`;
+}
+function signedMultiple(c,expression,second=false){
+ const negative=c.n<0n;
+ return `${second?`<mo>${negative?'−':'+'}</mo>`:negative?'<mo>−</mo>':''}${mathDecimal(rAbs(c))}${expression}`;
+}
+function combineTerms(items){
+ const nonzero=items.filter(([c])=>c.n!==0n);
+ return nonzero.length?nonzero.map(([c,term],i)=>signedMultiple(c,term,i>0)).join(''):'<mn>0</mn>';
+}
+function showParticularSolution(){
+ const box=$('particularSolution');
+ if(!selectedCondition||!drawing){box.hidden=true;box.replaceChildren();return;}
+ decimalHasRepeats=false;decimalWasApproximated=false;
+ const {exactBasis:basis,kind,exactEigen:eigen}=drawing;
+ const [u,v]=basis,[c1,c2]=exactCoefficients(u,v,selectedCondition.map(n=>exactDecimal(n.toFixed(1))));
+ const exp=n=>n.n===0n?'':ePow(`${mathDecimal(n)}<mi>t</mi>`);
+ const x=`${arrowVar('x')}<mo>(</mo><mi>t</mi><mo>)</mo>`;
+ let rhs;
+ if(kind==='defective'){
+  rhs=`${exp(eigen[0])}<mo>[</mo>${combineTerms([[c1,mathVector(u)],[c2,`<mo>(</mo><mi>t</mi>${mathVector(u)}<mo>+</mo>${mathVector(v)}<mo>)</mo>`]])}<mo>]</mo>`;
+ }else if(kind==='complex'){
+  const cosine=`<mi>cos</mi><mo>(</mo>${mathDecimal(eigen[1])}<mi>t</mi><mo>)</mo>`;
+  const sine=`<mi>sin</mi><mo>(</mo>${mathDecimal(eigen[1])}<mi>t</mi><mo>)</mo>`;
+  const fundamental1=`<mo>(</mo>${mathVector(u)}${cosine}<mo>−</mo>${mathVector(v)}${sine}<mo>)</mo>`;
+  const fundamental2=`<mo>(</mo>${mathVector(u)}${sine}<mo>+</mo>${mathVector(v)}${cosine}<mo>)</mo>`;
+  rhs=`${exp(eigen[0])}<mo>[</mo>${combineTerms([[c1,fundamental1],[c2,fundamental2]])}<mo>]</mo>`;
+ }else{
+  rhs=combineTerms([[c1,exp(eigen[0])+mathVector(u)],[c2,exp(eigen[1])+mathVector(v)]]);
+ }
+ box.hidden=false;
+ const note=decimalWasApproximated?'Some coefficients have nonterminating decimals with long repeating patterns, so these are approximations.':decimalHasRepeats?'An overbar indicates repeating digits; the decimal values are exact.':'';
+ box.innerHTML=`<strong>Solution for this initial condition:</strong><div class="particular-math"><math display="block">${x}<mo>${decimalWasApproximated?'≈':'='}</mo>${rhs}</math></div>${note?`<p class="helper">${note}</p>`:''}`;
+}
+function showInitialCondition(){
+ if(selectedCondition){
+  $('ic0').value=selectedCondition[0].toFixed(1);
+  $('ic1').value=selectedCondition[1].toFixed(1);
+ }
+ $('initialConditionNotice').hidden=true;
+}
+function setSelectedCondition(point,autoPlay=true){
+ selectedCondition=point.map(n=>{const r=Math.round(n*10)/10;return Object.is(r,-0)?0:r;});
+ showInitialCondition();showParticularSolution();resetAnimation(autoPlay);
+ canvas.setAttribute('aria-label',`Phase plane: initial condition (${selectedCondition[0]}, ${selectedCondition[1]}). Click to choose another.`);
+}
+function enterInitialCondition(){
+ const fields=[$('ic0'),$('ic1')];
+ const raw=fields.map(x=>x.value.trim());
+ if(raw.some(x=>!x)){
+  $('initialConditionNotice').textContent='Enter both initial-condition coordinates.';
+  $('initialConditionNotice').hidden=false;return;
+ }
+ if(raw.some(x=>!/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(x)||!Number.isFinite(Number(x)))){
+  $('initialConditionNotice').textContent='Both initial-condition coordinates must be finite real numbers.';
+  $('initialConditionNotice').hidden=false;return;
+ }
+ setSelectedCondition(raw.map(Number));
+}
+function stopAnimation(){playing=false;if(frameId!==null){cancelAnimationFrame(frameId);frameId=null;}lastFrame=null;updateButtons();}
+function formatCurrentCoordinate(v){
+ if(!Number.isFinite(v))return '—';
+ if(Math.abs(v)<0.0005)return '0';
+ if(Math.abs(v)>=1e7||Math.abs(v)<0.001)return v.toExponential(3);
+ return v.toFixed(3).replace(/\.?0+$/,'');
+}
+function updateButtons(){
+ const valid=!!drawing&&!!selectedCondition;
+ $('playBtn').disabled=!valid;$('resetBtn').disabled=!valid;
+ $('playBtn').textContent=playing?'Pause':elapsed>=endTime?'Replay':'Play';
+ $('timeLabel').textContent=`t = ${elapsed.toFixed(2)}`;
+ $('currentState').hidden=!valid;
+ if(valid){
+  const position=positionAt(elapsed);
+  $('currentX1').textContent=position?formatCurrentCoordinate(position[0]):'—';
+  $('currentX2').textContent=position?formatCurrentCoordinate(position[1]):'—';
+ }
+ renderComponentGraphs();
+}
+function resetAnimation(autoPlay=false){stopAnimation();elapsed=0;trailTime=0;trail=selectedCondition?[[...selectedCondition]]:[];updateButtons();render();if(autoPlay)startAnimation();}
+function startAnimation(){if(!drawing||!selectedCondition)return;if(elapsed>=endTime){resetAnimation();}playing=true;lastFrame=null;updateButtons();frameId=requestAnimationFrame(tick);}
+function positionAt(t){
+ if(!drawing||!selectedCondition)return null;
+ const {basis,kind,lam1,lam2,b}=drawing,[u,v]=basis,[c1,c2]=coeff(u,v,selectedCondition);
+ let h1,h2;
+ if(kind==='defective'){const e=Math.exp(lam1*t);h1=e*(c1+c2*t);h2=e*c2;}
+ else if(kind==='complex'){const e=Math.exp(lam1*t),ang=b*t,C=Math.cos(ang),S=Math.sin(ang);h1=e*(c1*C+c2*S);h2=e*(-c1*S+c2*C);}
+ else{h1=c1*Math.exp(lam1*t);h2=c2*Math.exp(lam2*t);}
+ const x=h1*u[0]+h2*v[0],y=h1*u[1]+h2*v[1];return Number.isFinite(x)&&Number.isFinite(y)?[x,y]:null;
+}
+// Cache the component curves for the fixed eigenpairs, initial condition, and final time.
+// Only the moving dot and colored partial trace need to change every animation frame.
+function getComponentSamples(){
+ if(!drawing||!selectedCondition)return null;
+ if(componentCache && componentCache.system===drawing && componentCache.initial===selectedCondition && componentCache.T===endTime)return componentCache;
+ const samples=[];
+ const n=480;
+ for(let i=0;i<=n;i++){
+  const t=endTime*i/n;
+  samples.push({t,xy:positionAt(t)});
+ }
+ componentCache={system:drawing,initial:selectedCondition,T:endTime,samples};
+ return componentCache;
+}
+function graphTick(v){
+ if(!Number.isFinite(v))return '—';
+ if(Math.abs(v)<1e-12)return '0';
+ if(Math.abs(v)>=10000||Math.abs(v)<.01)return v.toExponential(1).replace('e+','e');
+ return String(Number(v.toPrecision(3)));
+}
+function renderComponentGraphs(){
+ if(componentPanel.hidden)return;
+ const data=getComponentSamples();
+ componentCanvases.forEach((c,k)=>{
+  const rect=c.getBoundingClientRect(),W=rect.width,H=rect.height;
+  if(W<1||H<1)return;
+  const dpr=Math.min(window.devicePixelRatio||1,2),cw=Math.round(W*dpr),ch=Math.round(H*dpr);
+  if(c.width!==cw||c.height!==ch){c.width=cw;c.height=ch;}
+  const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  g.clearRect(0,0,W,H);g.fillStyle='#fff';g.fillRect(0,0,W,H);
+  const left=69,right=17,top=12,bottom=31,plotW=Math.max(1,W-left-right),plotH=Math.max(1,H-top-bottom);
+  g.font='11px system-ui, sans-serif';g.lineWidth=1;
+  if(!data){
+   g.textAlign='center';g.textBaseline='middle';g.fillStyle='#697b88';
+   g.fillText(!drawing?'Correct the eigenpairs to display this graph.':'Choose an initial condition to display this graph.',W/2,H/2);
+   return;
+  }
+  const {samples}=data,min=bounds.ymin,max=bounds.ymax,span=max-min;
+  const x=t=>left+(t/endTime)*plotW;
+  const y=v=>top+(max-v)/span*plotH;
+  // Both vertical axes use the same fixed limits as the phase portrait.
+  g.strokeStyle='#e5edf2';g.fillStyle='#5b6c79';
+  for(let i=0;i<=4;i++){
+   const xp=x(endTime*i/4);
+   g.beginPath();g.moveTo(xp,top);g.lineTo(xp,top+plotH);g.stroke();
+   g.textAlign='center';g.textBaseline='top';g.fillText(graphTick(endTime*i/4),xp,top+plotH+6);
+   const v=min+span*i/4,yp=y(v);
+   g.beginPath();g.moveTo(left,yp);g.lineTo(left+plotW,yp);g.stroke();
+   g.textAlign='right';g.textBaseline='middle';g.fillText(graphTick(v),left-7,yp);
+  }
+  g.strokeStyle='#91a1ae';g.strokeRect(left,top,plotW,plotH);
+  if(min<=0&&max>=0){g.strokeStyle='#9ba8b3';g.lineWidth=1.1;g.beginPath();g.moveTo(left,y(0));g.lineTo(left+plotW,y(0));g.stroke();}
+  g.textAlign='right';g.textBaseline='top';g.fillStyle='#526576';g.fillText('t',left+plotW,top+plotH+19);
+  const color=k===0?'#307eae':'#b65e36';
+  g.save();g.beginPath();g.rect(left,top,plotW,plotH);g.clip();
+  // Clip each line segment to the vertical interval instead of drawing enormous
+  // off-screen coordinates, or flattening divergent solutions along the plot edge.
+  function curve(upTo,stroke,width){
+   const points=[];
+   for(const item of samples){
+    if(item.t>upTo)break;
+    points.push([item.t,item.xy?.[k]]);
+   }
+   if(upTo<endTime)points.push([upTo,positionAt(upTo)?.[k]]);
+   g.beginPath();
+   for(let i=1;i<points.length;i++){
+    const [t1,v1]=points[i-1],[t2,v2]=points[i];
+    if(!Number.isFinite(v1)||!Number.isFinite(v2))continue;
+    // Parametric interval in which the segment is inside the display window.
+    const dv=v2-v1;
+    if(!Number.isFinite(dv))continue;
+    let a=0,b=1;
+    if(dv===0){if(v1<min||v1>max)continue;}
+    else{
+     const r1=(min-v1)/dv,r2=(max-v1)/dv;
+     a=Math.max(0,Math.min(r1,r2));b=Math.min(1,Math.max(r1,r2));
+     if(b<a)continue;
+    }
+    const tA=t1+(t2-t1)*a,tB=t1+(t2-t1)*b;
+    const vA=Math.max(min,Math.min(max,v1+dv*a));
+    const vB=Math.max(min,Math.min(max,v1+dv*b));
+    g.moveTo(x(tA),y(vA));g.lineTo(x(tB),y(vB));
+   }
+   g.strokeStyle=stroke;g.lineWidth=width;g.lineJoin='round';g.stroke();
+  }
+  curve(endTime,k===0?'#c8deeb':'#ebd4c6',1.8);
+  curve(elapsed,color,2.8);
+  const current=positionAt(elapsed)?.[k];
+  const nowX=x(elapsed);
+  g.beginPath();g.moveTo(nowX,top);g.lineTo(nowX,top+plotH);
+  g.strokeStyle='#647b8d';g.lineWidth=1;g.setLineDash([4,4]);g.stroke();g.setLineDash([]);
+  if(Number.isFinite(current)&&current>=min&&current<=max){
+   g.beginPath();g.arc(nowX,y(current),4.6,0,Math.PI*2);g.fillStyle=color;g.fill();g.strokeStyle='#fff';g.lineWidth=1.5;g.stroke();
+  }
+  g.restore();
+  c.setAttribute('aria-label',`Graph of ${k===0?'x':'y'} versus time from 0 to ${endTime}; current time ${elapsed.toFixed(2)}.`);
+ });
+}
+
+function sampleTrail(){if(!selectedCondition||!drawing)return;const rate=Math.max(1,...drawing.matrix.flat().map(Math.abs));const h=Math.max(.003,Math.min(.045,.11/rate));let count=0;while(trailTime+h<=elapsed&&count<1500){trailTime+=h;const p=positionAt(trailTime);if(!p){trailTime=elapsed;break;}trail.push(p);count++;}if(trail.length>6000){trail=trail.filter((_,i)=>i%2===0);}}
+function tick(now){if(!playing)return;if(lastFrame===null)lastFrame=now;elapsed=Math.min(endTime,elapsed+Math.min((now-lastFrame)/1000,.08)*animationSpeed);lastFrame=now;sampleTrail();updateButtons();render();
+ if(elapsed>=endTime){stopAnimation();$('portraitDetail').textContent=`Reached the final time T = ${fmtReal(endTime)}. Press Replay or choose another initial condition.`;return;}
+ frameId=requestAnimationFrame(tick);
+}
+function validateComplex(pair,index){
+ const a=hasImag(pair[0]),b=hasImagVector(pair);
+ if(a!==b)throw Error(`Eigenpair ${index+1}: the eigenvalue and eigenvector must either both be real or both be nonreal (complex).`);
+}
+function setModeUI(){
+ const defective=mode==='defective';$('secondHeading').textContent=defective?'Generalized eigenvector':'Eigenpair 2';$('secondLambdaLabel').textContent=defective?'Repeated eigenvalue λ₂ = λ₁':'Eigenvalue λ₂';$('vlabel0').innerHTML='Eigenvector '+(defective?arrowMath('v'):arrowMath('v','1'));$('vlabel1').innerHTML=(defective?'Generalized eigenvector ':'Eigenvector ')+(defective?arrowMath('w'):arrowMath('v','2'));
+ inputs[1][1].setAttribute('aria-label',defective?'First component of generalized eigenvector':'First component of eigenvector 2');inputs[1][2].setAttribute('aria-label',defective?'Second component of generalized eigenvector':'Second component of eigenvector 2');
+ $('modeHelp').innerHTML=defective?'Algebraic multiplicity 2, geometric multiplicity 1: enter a real eigenvalue, an eigenvector, and a linearly independent generalized eigenvector. The matrix will satisfy '+`<math><mo>(</mo><mi mathvariant="bold-italic">A</mi><mo>−</mo><mi>λ</mi><mi mathvariant="bold-italic">I</mi><mo>)</mo>${arrowVar('w')}<mo>=</mo>${arrowVar('v')}</math>.`:'For a real matrix, a nonreal eigenpair determines the conjugate eigenpair automatically. A complex eigenvalue and its eigenvector must both be nonreal.';
+}
+function lockFields(){const defective=mode==='defective';
+ for(let i=0;i<2;i++){
+  const locked=!defective&&complexSource!==null&&i!==complexSource;
+  inputs[i].forEach((el,j)=>{el.readOnly=locked||(defective&&i===1&&j===0);});
+  $('status'+i).textContent=defective?(i===1?'Generalized eigenvector':''):(locked?'Conjugate (automatic)':complexSource===i?'Editable':'');
+ }
+ if(defective)inputs[1][0].value=inputs[0][0].value;
+}
+function update(editedRow=null){
+ stopAnimation();
+ try{
+  let pairs=[readPair(0),readPair(1)];
+  if(mode==='defective'){
+   complexSource=null;inputs[1][0].value=inputs[0][0].value;pairs[1][0]=pairs[0][0];lockFields();
+   if(pairs.some(p=>p.some(hasImag)))throw Error('A real 2×2 matrix with a defective repeated eigenvalue requires a real eigenvalue, eigenvector, and generalized eigenvector.');
+   const l=pairs[0][0].re,u=vec(pairs[0]),v=vec(pairs[1]);
+   if(Math.hypot(...u)<EPS)throw Error('The eigenvector cannot be the zero vector.');
+   try{invertBasis(u,v);}catch(e){throw Error('The generalized eigenvector must be linearly independent from the eigenvector.');}
+   const A=similarity(u,v,[[l,1],[0,l]]);
+   drawing={matrix:A,basis:[u,v],kind:'defective',lam1:l,lam2:l,eigenvectors:[u],exactBasis:exactBasisFromInputs(0,'defective'),exactEigen:[exactDecimal(inputs[0][0].value)]};
+   setNotice('The repeated eigenvalue has algebraic multiplicity 2 and geometric multiplicity 1. The generalized eigenvector satisfies the Jordan-chain relation shown above.','neutral');
+   $('portraitDetail').textContent='Dashed line: the single eigendirection. The moving point follows the solution forward in time.';
+   $('eigLegend').style.display='inline';
+  }else{
+   if(complexSource!==null){
+    const source=pairs[complexSource];
+    if(!hasImag(source[0])&&!hasImagVector(source)){
+     const target=1-complexSource;
+     if(previousSecond){inputs[target].forEach((e,j)=>e.value=previousSecond[j]);}
+     complexSource=null;previousSecond=null;pairs=[readPair(0),readPair(1)];
+    }
+   }
+   // Validate before applying the conjugate rule: a nonreal eigenvalue needs a nonreal eigenvector and vice versa.
+   if(complexSource===null){pairs.forEach((p,i)=>validateComplex(p,i));if(editedRow!==null&&hasImag(pairs[editedRow][0]))complexSource=editedRow;else if(hasImag(pairs[0][0]))complexSource=0;else if(hasImag(pairs[1][0]))complexSource=1;
+    if(complexSource!==null)previousSecond=inputs[1-complexSource].map(e=>e.value);
+   }else validateComplex(pairs[complexSource],complexSource);
+   if(complexSource!==null){
+    const target=1-complexSource;
+    inputs[target].forEach((e,j)=>{e.value=fmtComplex(conj(pairs[complexSource][j]));});
+    pairs=[readPair(0),readPair(1)];
+   }
+   lockFields();
+   if(complexSource===null){
+    const u=vec(pairs[0]),v=vec(pairs[1]),l1=pairs[0][0].re,l2=pairs[1][0].re;
+    if(Math.hypot(...u)<EPS||Math.hypot(...v)<EPS)throw Error('An eigenvector cannot be the zero vector.');
+    const A=similarity(u,v,[[l1,0],[0,l2]]);
+    const repeated=Math.abs(l1-l2)<EPS;
+    drawing={matrix:A,basis:[u,v],kind:'ordinary',lam1:l1,lam2:l2,eigenvectors:repeated?[]:[u,v],exactBasis:exactBasisFromInputs(0,'ordinary'),exactEigen:[exactDecimal(inputs[0][0].value),exactDecimal(inputs[1][0].value)]};
+    setNotice('Two linearly independent real eigenvectors determine the matrix A.','neutral');
+    $('portraitDetail').textContent=repeated?'The matrix is A = λI; every nonzero vector is an eigenvector.':'Dashed lines mark eigendirections. The moving point follows the solution forward in time.';
+    $('eigLegend').style.display=repeated?'none':'inline';
+   }else{
+    const pair=pairs[complexSource],l=pair[0],u=[pair[1].re,pair[2].re],v=[pair[1].im,pair[2].im];
+    if(Math.hypot(...u)<EPS||Math.hypot(...v)<EPS)throw Error('The real and imaginary parts of a complex eigenvector must be independent.');
+    let A;try{A=similarity(u,v,[[l.re,l.im],[-l.im,l.re]]);}catch(e){throw Error('The real and imaginary parts of the eigenvector must be linearly independent to obtain a real 2×2 matrix.');}
+    drawing={matrix:A,basis:[u,v],kind:'complex',lam1:l.re,lam2:l.re,b:l.im,eigenvectors:[],exactBasis:exactBasisFromInputs(complexSource,'complex'),exactEigen:exactComplex(inputs[complexSource][0].value)};
+    setNotice('For a real matrix, the complex conjugate of an eigenpair is also an eigenpair. The conjugate entries are filled in automatically.','');
+    $('portraitDetail').textContent='Nonreal eigenvalues have no real eigendirections. The moving point follows the solution forward in time.';
+    $('eigLegend').style.display='none';
+   }
+  }
+  if(drawing.matrix.flat().some(a=>!Number.isFinite(a)||Math.abs(a)>1e10))throw Error('These entries produce an excessively large matrix. Try less extreme values.');
+  setMatrix(drawing.matrix,exactMatrixFromDrawing(drawing));showGeneralSolution(drawing.kind);showParticularSolution();
+  $('invalidPlot').style.display='none';resetAnimation(false);
+ }catch(e){
+  drawing=null;lockFields();showParticularSolution();$('matrixBox').textContent='—';$('solutionBox').textContent='—';setNotice(e.message,'error');$('invalidPlot').style.display='flex';$('portraitDetail').textContent='Correct the inputs to calculate the phase portrait.';resetAnimation(false);
+ }
+}
+function niceStep(span){const k=Math.pow(10,Math.floor(Math.log10(span/8))),r=span/8/k;return (r<=1?1:r<=2?2:r<=5?5:10)*k;}
+function render(){
+ const r=canvas.getBoundingClientRect();if(!r.width)return;
+ const dpr=Math.min(window.devicePixelRatio||1,2),W=r.width,H=r.height;
+ const wpx=Math.round(W*dpr),hpx=Math.round(H*dpr);if(canvas.width!==wpx||canvas.height!==hpx){canvas.width=wpx;canvas.height=hpx;}
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+ const margin=Math.max(39,W*.09),side=Math.min(W,H)-2*margin,left=(W-side)/2,top=(H-side)/2;
+ plotGeometry={left,top,side};const {xmin,xmax,ymin,ymax}=bounds,span=xmax-xmin;
+ const px=x=>left+(x-xmin)*side/span,py=y=>top+(ymax-y)*side/span;
+ const line=(x,y,xx,yy)=>{ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(xx,yy);ctx.stroke();};
+ ctx.save();ctx.strokeStyle='#e7edf1';ctx.lineWidth=1;
+ const step=niceStep(span);
+ for(let x=Math.ceil(xmin/step)*step,k=0;x<=xmax+step*1e-5&&k<50;x+=step,k++)line(px(x),top,px(x),top+side);
+ for(let y=Math.ceil(ymin/step)*step,k=0;y<=ymax+step*1e-5&&k<50;y+=step,k++)line(left,py(y),left+side,py(y));
+ ctx.strokeStyle='#697b88';ctx.lineWidth=1.4;
+ if(xmin<=0&&xmax>=0)line(px(0),top,px(0),top+side);
+ if(ymin<=0&&ymax>=0)line(left,py(0),left+side,py(0));
+ ctx.strokeStyle='#93a4b2';ctx.lineWidth=1;ctx.strokeRect(left,top,side,side);
+ ctx.fillStyle='#465867';ctx.font='11px system-ui, sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
+ for(let x=Math.ceil(xmin/step)*step,k=0;x<=xmax+step*1e-5&&k<50;x+=step,k++){if(px(x)>left+10&&px(x)<left+side-10)ctx.fillText(fmtReal(x),px(x),top+side+6);}
+ ctx.textAlign='right';ctx.textBaseline='middle';
+ for(let y=Math.ceil(ymin/step)*step,k=0;y<=ymax+step*1e-5&&k<50;y+=step,k++){if(py(y)>top+8&&py(y)<top+side-8)ctx.fillText(fmtReal(y),left-6,py(y));}
+ ctx.font='13px system-ui, sans-serif';ctx.textAlign='right';ctx.textBaseline='top';ctx.fillText('x',left+side,top+side+23);ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText('y',left-10,top);
+ if(!drawing){ctx.restore();return;}
+ const A=drawing.matrix,f=([x,y])=>[A[0][0]*x+A[0][1]*y,A[1][0]*x+A[1][1]*y];
+ ctx.beginPath();ctx.rect(left,top,side,side);ctx.clip();
+ ctx.strokeStyle='#2e6b92';ctx.fillStyle='#2e6b92';ctx.lineWidth=1.25;
+ for(let j=0;j<11;j++)for(let i=0;i<11;i++){
+  const x=xmin+(i+.5)*span/11,y=ymin+(j+.5)*span/11,[dx,dy]=f([x,y]),n=Math.hypot(dx,dy);if(n<1e-12)continue;
+  const ux=dx/n,uy=-dy/n,cx=px(x),cy=py(y),L=Math.min(17,side*.04),x1=cx-ux*L*.48,y1=cy-uy*L*.48,x2=cx+ux*L*.52,y2=cy+uy*L*.52;
+  line(x1,y1,x2,y2);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-ux*4-uy*2.7,y2-uy*4+ux*2.7);ctx.lineTo(x2-ux*4+uy*2.7,y2-uy*4-ux*2.7);ctx.closePath();ctx.fill();
+ }
+ drawing.eigenvectors.forEach((v,i)=>{const n=Math.hypot(...v);if(n<EPS)return;const s=span*2/n;ctx.strokeStyle='#8374bd';ctx.lineWidth=1.9;ctx.setLineDash(i===0?[7,5]:[2,5]);line(px(-v[0]*s),py(-v[1]*s),px(v[0]*s),py(v[1]*s));});ctx.setLineDash([]);
+ if(selectedCondition){
+  const p=positionAt(elapsed);
+  ctx.strokeStyle='#c46530';ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
+  // Clamp points far beyond the axes: the displayed curve is already clipped to the square plot.
+  // This also avoids enormous canvas coordinates for exponentially growing solutions at large T.
+  const plotPoint=xy=>[Math.max(left-2*side,Math.min(left+3*side,px(xy[0]))),Math.max(top-2*side,Math.min(top+3*side,py(xy[1])))];
+  const origin=plotPoint(selectedCondition);ctx.moveTo(origin[0],origin[1]);
+  for(const xy of trail){if(xy&&xy.every(Number.isFinite)){const q=plotPoint(xy);ctx.lineTo(q[0],q[1]);}}
+  if(p){const q=plotPoint(p);ctx.lineTo(q[0],q[1]);}ctx.stroke();
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c46530';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(selectedCondition[0]),py(selectedCondition[1]),4.7,0,2*Math.PI);ctx.fill();ctx.stroke();
+  // The moving dot is x(t). The tangent arrow touches the *forward edge* of that dot,
+  // so its tip is at the dot's end rather than obscuring its center.
+  if(p && Math.abs(p[0])<=Math.max(Math.abs(xmin),Math.abs(xmax))*1.02 && Math.abs(p[1])<=Math.max(Math.abs(ymin),Math.abs(ymax))*1.02){
+   const dx=A[0][0]*p[0]+A[0][1]*p[1],dy=A[1][0]*p[0]+A[1][1]*p[1],m=Math.hypot(dx,dy);
+   const cx=px(p[0]),cy=py(p[1]),dotRadius=5.4;
+   if(m>1e-12){
+    const ux=dx/m,uy=-dy/m;
+    ctx.lineCap='round';ctx.lineJoin='round';
+    // Draw the arrow behind the moving point; its triangular tip reaches the front rim.
+    ctx.strokeStyle='#fff';ctx.lineWidth=5.2;line(cx-ux*23,cy-uy*23,cx-ux*11,cy-uy*11);
+    ctx.strokeStyle='#c46530';ctx.lineWidth=2.9;line(cx-ux*23,cy-uy*23,cx-ux*11,cy-uy*11);
+    const tipX=cx+ux*dotRadius,tipY=cy+uy*dotRadius;
+    ctx.beginPath();ctx.moveTo(tipX,tipY);
+    ctx.lineTo(tipX-ux*13-uy*5.6,tipY-uy*13+ux*5.6);
+    ctx.lineTo(tipX-ux*13+uy*5.6,tipY-uy*13-ux*5.6);
+    ctx.closePath();ctx.fillStyle='#c46530';ctx.fill();
+   }
+   // Keep the current position visible as a dot centered at the exact solution point.
+   ctx.fillStyle='#c46530';ctx.strokeStyle='#fff';ctx.lineWidth=1.8;
+   ctx.beginPath();ctx.arc(cx,cy,dotRadius,0,2*Math.PI);ctx.fill();ctx.stroke();
+  }
+ }
+ ctx.restore();
+}
+function setBounds(){
+ const raw=axisExtent.value.trim(),limit=Number(raw);
+ if(!raw||!Number.isFinite(limit)||limit<0.000005||limit>50000000){
+  $('axisNotice').textContent='Enter a positive axis limit between 0.000005 and 50,000,000.';
+  $('axisNotice').style.display='block';
+  return;
+ }
+ bounds={xmin:-limit,xmax:limit,ymin:-limit,ymax:limit};
+ $('axisNotice').style.display='none';
+ render();renderComponentGraphs();
+}
+canvas.addEventListener('click',e=>{
+ if(!drawing||!plotGeometry)return;const {left,top,side}=plotGeometry,r=canvas.getBoundingClientRect(),xp=e.clientX-r.left,yp=e.clientY-r.top;
+ if(xp<left||xp>left+side||yp<top||yp>top+side)return;
+ const x=bounds.xmin+(xp-left)*(bounds.xmax-bounds.xmin)/side,y=bounds.ymax-(yp-top)*(bounds.ymax-bounds.ymin)/side;
+ setSelectedCondition([x,y]);
+});
+$('ic0').addEventListener('change',enterInitialCondition);
+$('ic1').addEventListener('change',enterInitialCondition);
+$('playBtn').addEventListener('click',()=>{if(playing)stopAnimation();else startAnimation();});
+$('resetBtn').addEventListener('click',()=>resetAnimation(false));
+speedSlider.addEventListener('input',()=>{animationSpeed=Number(speedSlider.value);speedValue.textContent=`${animationSpeed}×`;});
+componentToggle.addEventListener('change',()=>{componentPanel.hidden=!componentToggle.checked;$('visualLayout').classList.toggle('with-components',componentToggle.checked);render();renderComponentGraphs();});
+axisExtent.addEventListener('change',setBounds);
+finalTimeInput.addEventListener('change',()=>{
+ const raw=finalTimeInput.value.trim(),value=Number(raw);
+ if(!raw||!Number.isFinite(value)||value<0.01||value>10000){
+  $('finalTimeNotice').textContent='Enter a final time between 0.01 and 10,000.';
+  $('finalTimeNotice').hidden=false;return;
+ }
+ endTime=value;$('finalTimeNotice').hidden=true;
+ // Begin again at t=0 so the new end time always applies to a complete trajectory.
+ resetAnimation(false);
+});
+$('mode').addEventListener('change',()=>{
+ stopAnimation();if(complexSource!==null&&previousSecond){inputs[1-complexSource].forEach((el,j)=>el.value=previousSecond[j]);}complexSource=null;previousSecond=null;
+ mode=$('mode').value;setModeUI();update(null);
+});
+inputs.forEach((arr,i)=>arr.forEach(el=>el.addEventListener('input',()=>update(i))));
+if(typeof ResizeObserver!=='undefined'){const resize=new ResizeObserver(()=>{render();renderComponentGraphs();});resize.observe(canvas.parentElement);resize.observe(componentPanel);}else window.addEventListener('resize',()=>{render();renderComponentGraphs();});
+setModeUI();lockFields();showInitialCondition();update();
+})();
+</script>
+</body>
+</html>
